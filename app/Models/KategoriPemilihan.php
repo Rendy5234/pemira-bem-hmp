@@ -1,0 +1,24 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class KategoriPemilihan extends Model
+{
+    protected $table = 'tb_kategori_pemilihan';
+    protected $primaryKey = 'id_kategori';
+    
+    protected $fillable = [
+        'id_event',
+        'nama_kategori',
+        'jenis',
+        'deskripsi'
+    ];
+
+    // Relasi dengan event
+    public function event()
+    {
+        return $this->belongsTo(Event::class, 'id_event', 'id_event');
+    }
+}
