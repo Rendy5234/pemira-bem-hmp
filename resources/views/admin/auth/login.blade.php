@@ -189,7 +189,7 @@
                     <td>super123</td>
                 </tr>
                 <tr>
-                    <td><strong>Admin BEM:</strong> admin_bem</td>
+                    <td><strong>Admin BEM:</strong> admin</td>
                     <td>admin123</td>
                 </tr>
                 <tr>

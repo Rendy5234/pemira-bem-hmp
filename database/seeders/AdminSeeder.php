@@ -20,16 +20,8 @@ class AdminSeeder extends Seeder
 
         // Admin BEM
         Admin::create([
-            'name_admin' => 'Admin BEM',
-            'username' => 'admin_bem',
-            'password' => Hash::make('admin123'),
-            'role' => 'admin'
-        ]);
-
-        // Admin HMP
-        Admin::create([
-            'name_admin' => 'Admin HMP',
-            'username' => 'admin_hmp',
+            'name_admin' => 'AdminBiasa',
+            'username' => 'admin',
             'password' => Hash::make('admin123'),
             'role' => 'admin'
         ]);
