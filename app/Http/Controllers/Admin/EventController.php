@@ -10,16 +10,31 @@ use Illuminate\Support\Facades\Auth;
 
 class EventController extends Controller
 {
-    // List semua event
-    public function index()
+    // Helper method untuk cek akses
+    private function checkAccess($allowAdmin = false)
     {
         $admin = Auth::guard('admin')->user();
         
-        if (!$admin->isSuperAdmin()) {
+        if ($admin->isSuperAdmin()) {
+            return true;
+        }
+        
+        if ($allowAdmin && $admin->isAdmin()) {
+            return true;
+        }
+        
+        return false;
+    }
+
+    // List semua event (Admin & Super Admin bisa akses)
+    public function index()
+    {
+        if (!$this->checkAccess(true)) {
             return redirect()->route('admin.dashboard')
                 ->with('error', 'Anda tidak memiliki akses ke halaman ini.');
         }
 
+        $admin = Auth::guard('admin')->user();
         $events = Event::withCount('kategoriPemilihan')
             ->orderBy('created_at', 'desc')
             ->get();
@@ -27,25 +42,22 @@ class EventController extends Controller
         return view('admin.event.index', compact('events', 'admin'));
     }
 
-    // Form tambah event
+    // Form tambah event (Admin & Super Admin bisa akses)
     public function create()
     {
-        $admin = Auth::guard('admin')->user();
-        
-        if (!$admin->isSuperAdmin()) {
+        if (!$this->checkAccess(true)) {
             return redirect()->route('admin.dashboard')
                 ->with('error', 'Anda tidak memiliki akses.');
         }
 
+        $admin = Auth::guard('admin')->user();
         return view('admin.event.create', compact('admin'));
     }
 
-    // Simpan event baru
+    // Simpan event baru (Admin & Super Admin bisa akses)
     public function store(Request $request)
     {
-        $admin = Auth::guard('admin')->user();
-        
-        if (!$admin->isSuperAdmin()) {
+        if (!$this->checkAccess(true)) {
             return redirect()->route('admin.dashboard')
                 ->with('error', 'Anda tidak memiliki akses.');
         }
@@ -95,27 +107,24 @@ class EventController extends Controller
             ->with('success', 'Event berhasil ditambahkan!');
     }
 
-    // Form edit event
+    // Form edit event (Admin & Super Admin bisa akses)
     public function edit($id)
     {
-        $admin = Auth::guard('admin')->user();
-        
-        if (!$admin->isSuperAdmin()) {
+        if (!$this->checkAccess(true)) {
             return redirect()->route('admin.dashboard')
                 ->with('error', 'Anda tidak memiliki akses.');
         }
 
+        $admin = Auth::guard('admin')->user();
         $event = Event::with('kategoriPemilihan')->findOrFail($id);
         
         return view('admin.event.edit', compact('event', 'admin'));
     }
 
-    // Update event
+    // Update event (Admin & Super Admin bisa akses)
     public function update(Request $request, $id)
     {
-        $admin = Auth::guard('admin')->user();
-        
-        if (!$admin->isSuperAdmin()) {
+        if (!$this->checkAccess(true)) {
             return redirect()->route('admin.dashboard')
                 ->with('error', 'Anda tidak memiliki akses.');
         }
@@ -165,33 +174,33 @@ class EventController extends Controller
             ->with('success', 'Event berhasil diupdate!');
     }
 
-    // Hapus event
+    // Hapus event (HANYA Super Admin yang bisa)
     public function destroy($id)
     {
         $admin = Auth::guard('admin')->user();
         
+        // Cek hanya superadmin
         if (!$admin->isSuperAdmin()) {
-            return redirect()->route('admin.dashboard')
-                ->with('error', 'Anda tidak memiliki akses.');
+            return redirect()->route('admin.event.index')
+                ->with('error', 'Hanya Super Admin yang dapat menghapus event!');
         }
 
         $event = Event::findOrFail($id);
-        $event->delete(); // Kategori akan terhapus otomatis (cascade)
+        $event->delete();
 
         return redirect()->route('admin.event.index')
             ->with('success', 'Event berhasil dihapus!');
     }
 
-    // Lihat detail event & kategorinya
+    // Lihat detail event (Admin & Super Admin bisa akses)
     public function show($id)
     {
-        $admin = Auth::guard('admin')->user();
-        
-        if (!$admin->isSuperAdmin()) {
+        if (!$this->checkAccess(true)) {
             return redirect()->route('admin.dashboard')
                 ->with('error', 'Anda tidak memiliki akses.');
         }
 
+        $admin = Auth::guard('admin')->user();
         $event = Event::with('kategoriPemilihan')->findOrFail($id);
         
         return view('admin.event.show', compact('event', 'admin'));
