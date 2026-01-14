@@ -136,7 +136,9 @@
 
     <div class="page-header">
         <h1>Kelola Event Pemilihan</h1>
-        <a href="{{ route('admin.event.create') }}" class="btn-primary">+ Tambah Event</a>
+        @if ($admin->isSuperAdmin() || $admin->isAdmin())
+            <a href="{{ route('admin.event.create') }}" class="btn-primary">+ Tambah Event</a>
+        @endif
     </div>
 
     @if ($events->count() > 0)
@@ -189,8 +191,11 @@
                             <td>
                                 <a href="{{ route('admin.event.show', $event->id_event) }}"
                                     class="btn-action btn-view">Detail</a>
-                                <a href="{{ route('admin.event.edit', $event->id_event) }}"
-                                    class="btn-action btn-edit">Edit</a>
+
+                                @if ($admin->isSuperAdmin() || $admin->isAdmin())
+                                    <a href="{{ route('admin.event.edit', $event->id_event) }}"
+                                        class="btn-action btn-edit">Edit</a>
+                                @endif
 
                                 @if ($admin->isSuperAdmin())
                                     <form action="{{ route('admin.event.destroy', $event->id_event) }}" method="POST"
