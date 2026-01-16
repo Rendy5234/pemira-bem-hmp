@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes; // Tambahkan
 
 class KategoriPemilihan extends Model
 {
+    use SoftDeletes; // Tambahkan
+
     protected $table = 'tb_kategori_pemilihan';
     protected $primaryKey = 'id_kategori';
     

@@ -19,6 +19,7 @@ return new class extends Migration
             $table->text('deskripsi')->nullable();
             $table->enum('status', ['draft', 'aktif', 'selesai'])->default('draft');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

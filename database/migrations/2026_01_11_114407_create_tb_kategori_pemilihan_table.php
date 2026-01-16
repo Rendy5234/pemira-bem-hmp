@@ -15,6 +15,7 @@ return new class extends Migration
             $table->enum('jenis', ['BEM', 'HMP']); // Untuk filtering
             $table->text('deskripsi')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
             $table->foreign('id_event')->references('id_event')->on('tb_event')->onDelete('cascade');
         });

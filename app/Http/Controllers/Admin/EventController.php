@@ -14,25 +14,22 @@ class EventController extends Controller
     private function checkReadAccess()
     {
         $admin = Auth::guard('admin')->user();
-        // Semua role bisa read
-        return true;
+        return true; // Semua role bisa read
     }
 
     private function checkWriteAccess()
     {
         $admin = Auth::guard('admin')->user();
-        // Hanya SuperAdmin dan Admin yang bisa write (CRU)
         return $admin->isSuperAdmin() || $admin->isAdmin();
     }
 
     private function checkDeleteAccess()
     {
         $admin = Auth::guard('admin')->user();
-        // Hanya SuperAdmin yang bisa delete
         return $admin->isSuperAdmin();
     }
 
-    // List semua event (SEMUA role bisa akses)
+    // List semua event
     public function index()
     {
         $admin = Auth::guard('admin')->user();
@@ -43,7 +40,7 @@ class EventController extends Controller
         return view('admin.event.index', compact('events', 'admin'));
     }
 
-    // Form tambah event (Admin & Super Admin)
+    // Form tambah event
     public function create()
     {
         if (!$this->checkWriteAccess()) {
@@ -55,7 +52,7 @@ class EventController extends Controller
         return view('admin.event.create', compact('admin'));
     }
 
-    // Simpan event baru (Admin & Super Admin)
+    // Simpan event baru
     public function store(Request $request)
     {
         if (!$this->checkWriteAccess()) {
@@ -82,7 +79,6 @@ class EventController extends Controller
             'kategori.*.jenis.required' => 'Jenis kategori wajib dipilih',
         ]);
 
-        // Simpan event
         $event = Event::create([
             'nama_event' => $validated['nama_event'],
             'periode' => $validated['periode'],
@@ -94,7 +90,6 @@ class EventController extends Controller
             'status' => $validated['status'],
         ]);
 
-        // Simpan kategori pemilihan
         foreach ($validated['kategori'] as $kategori) {
             KategoriPemilihan::create([
                 'id_event' => $event->id_event,
@@ -108,7 +103,7 @@ class EventController extends Controller
             ->with('success', 'Event berhasil ditambahkan!');
     }
 
-    // Form edit event (Admin & Super Admin)
+    // Form edit event
     public function edit($id)
     {
         if (!$this->checkWriteAccess()) {
@@ -122,7 +117,7 @@ class EventController extends Controller
         return view('admin.event.edit', compact('event', 'admin'));
     }
 
-    // Update event (Admin & Super Admin)
+    // Update event
     public function update(Request $request, $id)
     {
         if (!$this->checkWriteAccess()) {
@@ -147,7 +142,6 @@ class EventController extends Controller
             'kategori.*.deskripsi' => 'nullable',
         ]);
 
-        // Update event
         $event->update([
             'nama_event' => $validated['nama_event'],
             'periode' => $validated['periode'],
@@ -159,7 +153,6 @@ class EventController extends Controller
             'status' => $validated['status'],
         ]);
 
-        // Hapus kategori lama, bikin baru
         $event->kategoriPemilihan()->delete();
         
         foreach ($validated['kategori'] as $kategori) {
@@ -175,7 +168,7 @@ class EventController extends Controller
             ->with('success', 'Event berhasil diupdate!');
     }
 
-    // Hapus event (HANYA Super Admin)
+    // Soft Delete (HANYA Super Admin)
     public function destroy($id)
     {
         if (!$this->checkDeleteAccess()) {
@@ -184,18 +177,65 @@ class EventController extends Controller
         }
 
         $event = Event::findOrFail($id);
-        $event->delete();
+        $event->delete(); // Soft delete
 
         return redirect()->route('admin.event.index')
             ->with('success', 'Event berhasil dihapus!');
     }
 
-    // Lihat detail event (SEMUA role bisa akses)
+    // Lihat detail event
     public function show($id)
     {
         $admin = Auth::guard('admin')->user();
         $event = Event::with('kategoriPemilihan')->findOrFail($id);
         
         return view('admin.event.show', compact('event', 'admin'));
+    }
+
+    // Lihat event yang sudah dihapus (Trash)
+    public function trash()
+    {
+        if (!$this->checkDeleteAccess()) {
+            return redirect()->route('admin.event.index')
+                ->with('error', 'Anda tidak memiliki akses.');
+        }
+
+        $admin = Auth::guard('admin')->user();
+        $events = Event::onlyTrashed()
+            ->withCount('kategoriPemilihan')
+            ->orderBy('deleted_at', 'desc')
+            ->get();
+        
+        return view('admin.event.trash', compact('events', 'admin'));
+    }
+
+    // Restore event
+    public function restore($id)
+    {
+        if (!$this->checkDeleteAccess()) {
+            return redirect()->route('admin.event.index')
+                ->with('error', 'Anda tidak memiliki akses.');
+        }
+
+        $event = Event::onlyTrashed()->findOrFail($id);
+        $event->restore();
+
+        return redirect()->route('admin.event.trash')
+            ->with('success', 'Event berhasil dipulihkan!');
+    }
+
+    // Hapus permanen
+    public function forceDelete($id)
+    {
+        if (!$this->checkDeleteAccess()) {
+            return redirect()->route('admin.event.index')
+                ->with('error', 'Anda tidak memiliki akses.');
+        }
+
+        $event = Event::onlyTrashed()->findOrFail($id);
+        $event->forceDelete();
+
+        return redirect()->route('admin.event.trash')
+            ->with('success', 'Event berhasil dihapus permanen!');
     }
 }

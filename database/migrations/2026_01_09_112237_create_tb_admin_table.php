@@ -15,6 +15,7 @@ return new class extends Migration
             $table->string('password');
             $table->enum('role', ['superadmin', 'admin', 'readstaf'])->default('admin');
             $table->timestamps(); // created_at & updated_at otomatis
+            $table->softDeletes();
         });
     }
 
