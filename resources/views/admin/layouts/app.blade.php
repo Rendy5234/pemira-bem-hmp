@@ -139,7 +139,8 @@
                     class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">Dashboard</a>
                 <a href="{{ route('admin.event.index') }}"
                     class="{{ request()->routeIs('admin.event.*') ? 'active' : '' }}">Event</a>
-                <a href="#">Kandidat</a>
+                <a href="{{ route('admin.kandidat.selectEvent') }}"
+                    class="{{ request()->routeIs('kandidat.*') ? 'active' : '' }}">Kandidat</a>
                 <a href="#">Laporan</a>
                 <a href="#">Mahasiswa</a>
             </aside>

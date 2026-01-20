@@ -11,7 +11,7 @@ class KategoriPemilihan extends Model
 
     protected $table = 'tb_kategori_pemilihan';
     protected $primaryKey = 'id_kategori';
-    
+
     protected $fillable = [
         'id_event',
         'nama_kategori',
@@ -23,5 +23,11 @@ class KategoriPemilihan extends Model
     public function event()
     {
         return $this->belongsTo(Event::class, 'id_event', 'id_event');
+    }
+
+    // Relasi dengan Kandidat
+    public function kandidat()
+    {
+        return $this->hasMany(Kandidat::class, 'id_kategori', 'id_kategori');
     }
 }

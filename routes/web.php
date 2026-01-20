@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\Auth\AdminLoginController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\EventController;
+use App\Http\Controllers\Admin\KandidatController;
 
 // Redirect root ke admin login
 Route::get('/', function () {
@@ -12,40 +13,22 @@ Route::get('/', function () {
 
 // ==================== ADMIN ROUTES ====================
 
-// Admin Login (Guest only)
 Route::prefix('admin')->name('admin.')->group(function () {
+    
+    // ========== GUEST ONLY (Belum Login) ==========
     Route::middleware('guest:admin')->group(function () {
         Route::get('/login', [AdminLoginController::class, 'showLoginForm'])->name('login');
         Route::post('/login', [AdminLoginController::class, 'login'])->name('login.post');
     });
 
-    // Admin Protected Routes (Must be logged in)
+    // ========== AUTHENTICATED ONLY (Sudah Login) ==========
     Route::middleware('auth:admin')->group(function () {
-        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
-        Route::post('/logout', [AdminLoginController::class, 'logout'])->name('logout');
-    });
-
-    Route::middleware('auth:admin')->group(function () {
+        
+        // Dashboard & Logout
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
         Route::post('/logout', [AdminLoginController::class, 'logout'])->name('logout');
 
-        // Event Routes
-        Route::resource('event', EventController::class)->except(['show'])->names([
-            'index' => 'event.index',
-            'create' => 'event.create',
-            'store' => 'event.store',
-            'edit' => 'event.edit',
-            'update' => 'event.update',
-            'destroy' => 'event.destroy',
-        ]);
-        Route::get('event/{id}/detail', [EventController::class, 'show'])->name('event.show');
-    });
-
-    Route::middleware('auth:admin')->group(function () {
-        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
-        Route::post('/logout', [AdminLoginController::class, 'logout'])->name('logout');
-
-        // Event Routes
+        // ========== EVENT ROUTES ==========
         Route::prefix('event')->name('event.')->group(function () {
             Route::get('/', [EventController::class, 'index'])->name('index');
             Route::get('/create', [EventController::class, 'create'])->name('create');
@@ -55,10 +38,34 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::put('/{id}', [EventController::class, 'update'])->name('update');
             Route::delete('/{id}', [EventController::class, 'destroy'])->name('destroy');
 
-            // Trash
+            // Event Trash
             Route::get('/trash', [EventController::class, 'trash'])->name('trash');
             Route::post('/{id}/restore', [EventController::class, 'restore'])->name('restore');
             Route::delete('/{id}/force-delete', [EventController::class, 'forceDelete'])->name('forceDelete');
         });
+
+        // ========== KANDIDAT ROUTES ==========
+        Route::prefix('kandidat')->name('kandidat.')->group(function () {
+            // Level 1: Pilih Event
+            Route::get('/', [KandidatController::class, 'selectEvent'])->name('selectEvent');
+            
+            // Level 2: Pilih Kategori
+            Route::get('/event/{eventId}', [KandidatController::class, 'selectKategori'])->name('selectKategori');
+            
+            // Level 3: CRUD Kandidat
+            Route::get('/event/{eventId}/kategori/{kategoriId}', [KandidatController::class, 'index'])->name('index');
+            Route::get('/event/{eventId}/kategori/{kategoriId}/create', [KandidatController::class, 'create'])->name('create');
+            Route::post('/event/{eventId}/kategori/{kategoriId}', [KandidatController::class, 'store'])->name('store');
+            Route::get('/event/{eventId}/kategori/{kategoriId}/{id}', [KandidatController::class, 'show'])->name('show');
+            Route::get('/event/{eventId}/kategori/{kategoriId}/{id}/edit', [KandidatController::class, 'edit'])->name('edit');
+            Route::put('/event/{eventId}/kategori/{kategoriId}/{id}', [KandidatController::class, 'update'])->name('update');
+            Route::delete('/event/{eventId}/kategori/{kategoriId}/{id}', [KandidatController::class, 'destroy'])->name('destroy');
+            
+            // Kandidat Trash
+            Route::get('/trash', [KandidatController::class, 'trash'])->name('trash');
+            Route::post('/trash/{id}/restore', [KandidatController::class, 'restore'])->name('restore');
+            Route::delete('/trash/{id}/force-delete', [KandidatController::class, 'forceDelete'])->name('forceDelete');
+        });
+        
     });
 });
