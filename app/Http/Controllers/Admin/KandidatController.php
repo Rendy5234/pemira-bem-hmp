@@ -37,7 +37,7 @@ class KandidatController extends Controller
         $events = Event::withCount('kategoriPemilihan')
             ->orderBy('created_at', 'desc')
             ->get();
-        
+
         return view('admin.kandidat.select-event', compact('admin', 'events'));
     }
 
@@ -46,7 +46,7 @@ class KandidatController extends Controller
     {
         $admin = Auth::guard('admin')->user();
         $event = Event::with('kategoriPemilihan')->findOrFail($eventId);
-        
+
         return view('admin.kandidat.select-kategori', compact('admin', 'event'));
     }
 
@@ -56,11 +56,11 @@ class KandidatController extends Controller
         $admin = Auth::guard('admin')->user();
         $event = Event::findOrFail($eventId);
         $kategori = KategoriPemilihan::findOrFail($kategoriId);
-        
+
         $kandidats = Kandidat::where('id_kategori', $kategoriId)
             ->orderBy('nomor_urut')
             ->get();
-        
+
         return view('admin.kandidat.index', compact('admin', 'event', 'kategori', 'kandidats'));
     }
 
@@ -74,7 +74,7 @@ class KandidatController extends Controller
         $admin = Auth::guard('admin')->user();
         $event = Event::findOrFail($eventId);
         $kategori = KategoriPemilihan::findOrFail($kategoriId);
-        
+
         return view('admin.kandidat.create', compact('admin', 'event', 'kategori'));
     }
 
@@ -101,7 +101,7 @@ class KandidatController extends Controller
         $exists = Kandidat::where('id_kategori', $kategoriId)
             ->where('nomor_urut', $validated['nomor_urut'])
             ->exists();
-            
+
         if ($exists) {
             return back()->withErrors(['nomor_urut' => 'Nomor urut sudah digunakan'])
                 ->withInput();
@@ -130,7 +130,7 @@ class KandidatController extends Controller
         $event = Event::findOrFail($eventId);
         $kategori = KategoriPemilihan::findOrFail($kategoriId);
         $kandidat = Kandidat::findOrFail($id);
-        
+
         return view('admin.kandidat.show', compact('admin', 'event', 'kategori', 'kandidat'));
     }
 
@@ -145,7 +145,7 @@ class KandidatController extends Controller
         $event = Event::findOrFail($eventId);
         $kategori = KategoriPemilihan::findOrFail($kategoriId);
         $kandidat = Kandidat::findOrFail($id);
-        
+
         return view('admin.kandidat.edit', compact('admin', 'event', 'kategori', 'kandidat'));
     }
 
@@ -175,7 +175,7 @@ class KandidatController extends Controller
             ->where('nomor_urut', $validated['nomor_urut'])
             ->where('id_kandidat', '!=', $id)
             ->exists();
-            
+
         if ($exists) {
             return back()->withErrors(['nomor_urut' => 'Nomor urut sudah digunakan'])
                 ->withInput();
@@ -224,11 +224,20 @@ class KandidatController extends Controller
         }
 
         $admin = Auth::guard('admin')->user();
+
+        // PERBAIKAN: Load relasi yang sudah di-soft delete juga
         $kandidats = Kandidat::onlyTrashed()
-            ->with(['kategoriPemilihan.event'])
+            ->with([
+                'kategoriPemilihan' => function ($query) {
+                    $query->withTrashed(); // Load kategori yang dihapus juga
+                },
+                'kategoriPemilihan.event' => function ($query) {
+                    $query->withTrashed(); // Load event yang dihapus juga
+                }
+            ])
             ->orderBy('deleted_at', 'desc')
             ->get();
-        
+
         return view('admin.kandidat.trash', compact('admin', 'kandidats'));
     }
 
@@ -254,14 +263,14 @@ class KandidatController extends Controller
         }
 
         $kandidat = Kandidat::onlyTrashed()->findOrFail($id);
-        
+
         if ($kandidat->foto_ketua) {
             Storage::disk('public')->delete($kandidat->foto_ketua);
         }
         if ($kandidat->foto_wakil) {
             Storage::disk('public')->delete($kandidat->foto_wakil);
         }
-        
+
         $kandidat->forceDelete();
 
         return redirect()->route('admin.kandidat.trash')

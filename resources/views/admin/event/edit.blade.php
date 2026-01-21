@@ -4,6 +4,7 @@
 
 @section('content')
 <style>
+    /* Copy semua style dari create.blade.php yang sudah ada */
     .page-header {
         margin-bottom: 30px;
     }
@@ -236,6 +237,9 @@
         <div id="kategoriContainer">
             @foreach($event->kategoriPemilihan as $index => $kategori)
             <div class="kategori-container" data-index="{{ $index }}">
+                <!-- PENTING: Hidden input untuk ID kategori yang sudah ada -->
+                <input type="hidden" name="kategori[{{ $index }}][id]" value="{{ $kategori->id_kategori }}">
+                
                 <div class="kategori-header">
                     <span class="kategori-number">Kategori #{{ $index + 1 }}</span>
                     @if($index > 0)
@@ -286,6 +290,8 @@ document.getElementById('addKategoriBtn').addEventListener('click', function() {
     const newKategori = document.createElement('div');
     newKategori.className = 'kategori-container';
     newKategori.setAttribute('data-index', kategoriIndex);
+    
+    // TIDAK ADA hidden input ID untuk kategori baru (artinya ini CREATE)
     newKategori.innerHTML = `
         <div class="kategori-header">
             <span class="kategori-number">Kategori #${kategoriIndex + 1}</span>

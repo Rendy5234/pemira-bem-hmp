@@ -126,11 +126,19 @@
                     <small style="color: #6b7280;">{{ $kandidat->nim_wakil }}</small>
                 </td>
                 <td>
-                    <strong>{{ $kandidat->kategoriPemilihan->event->nama_event }}</strong><br>
-                    <small style="color: #6b7280;">{{ $kandidat->kategoriPemilihan->event->periode }}</small>
-                    <br><br>
-                    {{ $kandidat->kategoriPemilihan->nama_kategori }} 
-                    <span class="badge badge-{{ strtolower($kandidat->kategoriPemilihan->jenis) }}">{{ $kandidat->kategoriPemilihan->jenis }}</span>
+                    @if($kandidat->kategoriPemilihan && $kandidat->kategoriPemilihan->event)
+                        <strong>{{ $kandidat->kategoriPemilihan->event->nama_event }}</strong><br>
+                        <small style="color: #6b7280;">{{ $kandidat->kategoriPemilihan->event->periode }}</small>
+                        <br><br>
+                        {{ $kandidat->kategoriPemilihan->nama_kategori }} 
+                        <span class="badge badge-{{ strtolower($kandidat->kategoriPemilihan->jenis) }}">{{ $kandidat->kategoriPemilihan->jenis }}</span>
+                    @elseif($kandidat->kategoriPemilihan)
+                        {{ $kandidat->kategoriPemilihan->nama_kategori }} 
+                        <span class="badge badge-{{ strtolower($kandidat->kategoriPemilihan->jenis) }}">{{ $kandidat->kategoriPemilihan->jenis }}</span>
+                        <br><small style="color: #9ca3af;">(Event sudah dihapus)</small>
+                    @else
+                        <span style="color: #9ca3af;">Kategori & Event sudah dihapus</span>
+                    @endif
                 </td>
                 <td>{{ $kandidat->deleted_at->format('d F Y, H:i') }} WIB</td>
                 <td>

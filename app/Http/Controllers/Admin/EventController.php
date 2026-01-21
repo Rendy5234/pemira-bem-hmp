@@ -7,6 +7,7 @@ use App\Models\Event;
 use App\Models\KategoriPemilihan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class EventController extends Controller
 {
@@ -117,7 +118,7 @@ class EventController extends Controller
         return view('admin.event.edit', compact('event', 'admin'));
     }
 
-    // Update event
+    // Update event - FIXED LOGIC
     public function update(Request $request, $id)
     {
         if (!$this->checkWriteAccess()) {
@@ -137,11 +138,13 @@ class EventController extends Controller
             'deskripsi' => 'nullable',
             'status' => 'required|in:draft,aktif,selesai',
             'kategori' => 'required|array|min:1',
+            'kategori.*.id' => 'nullable|exists:tb_kategori_pemilihan,id_kategori',
             'kategori.*.nama' => 'required|max:255',
             'kategori.*.jenis' => 'required|in:BEM,HMP',
             'kategori.*.deskripsi' => 'nullable',
         ]);
 
+        // Update event
         $event->update([
             'nama_event' => $validated['nama_event'],
             'periode' => $validated['periode'],
@@ -153,15 +156,39 @@ class EventController extends Controller
             'status' => $validated['status'],
         ]);
 
-        $event->kategoriPemilihan()->delete();
-        
-        foreach ($validated['kategori'] as $kategori) {
-            KategoriPemilihan::create([
-                'id_event' => $event->id_event,
-                'nama_kategori' => $kategori['nama'],
-                'jenis' => $kategori['jenis'],
-                'deskripsi' => $kategori['deskripsi'] ?? null,
-            ]);
+        // SYNC KATEGORI (update existing, create new, delete removed)
+        $existingKategoriIds = $event->kategoriPemilihan->pluck('id_kategori')->toArray();
+        $submittedKategoriIds = [];
+
+        foreach ($validated['kategori'] as $index => $kategoriData) {
+            // Cari ID kategori dari hidden input (jika ada)
+            $kategoriId = $request->input("kategori.{$index}.id");
+
+            if ($kategoriId && in_array($kategoriId, $existingKategoriIds)) {
+                // UPDATE kategori yang sudah ada
+                $kategori = KategoriPemilihan::find($kategoriId);
+                $kategori->update([
+                    'nama_kategori' => $kategoriData['nama'],
+                    'jenis' => $kategoriData['jenis'],
+                    'deskripsi' => $kategoriData['deskripsi'] ?? null,
+                ]);
+                $submittedKategoriIds[] = $kategoriId;
+            } else {
+                // CREATE kategori baru
+                $newKategori = KategoriPemilihan::create([
+                    'id_event' => $event->id_event,
+                    'nama_kategori' => $kategoriData['nama'],
+                    'jenis' => $kategoriData['jenis'],
+                    'deskripsi' => $kategoriData['deskripsi'] ?? null,
+                ]);
+                $submittedKategoriIds[] = $newKategori->id_kategori;
+            }
+        }
+
+        // DELETE kategori yang dihapus dari form
+        $kategoriToDelete = array_diff($existingKategoriIds, $submittedKategoriIds);
+        if (!empty($kategoriToDelete)) {
+            KategoriPemilihan::whereIn('id_kategori', $kategoriToDelete)->delete();
         }
 
         return redirect()->route('admin.event.index')
