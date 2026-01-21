@@ -4,7 +4,6 @@
 
 @section('content')
 <style>
-    /* Copy semua style dari index.blade.php */
     .page-header {
         display: flex;
         justify-content: space-between;
@@ -15,16 +14,30 @@
         font-size: 28px;
         color: #333;
     }
-    .btn-primary {
-        background-color: #2563eb;
-        color: white;
+    .header-actions {
+        display: flex;
+        gap: 10px;
+    }
+    .btn {
         padding: 10px 20px;
         border-radius: 4px;
         text-decoration: none;
         font-weight: bold;
+        display: inline-block;
+    }
+    .btn-primary {
+        background-color: #2563eb;
+        color: white;
     }
     .btn-primary:hover {
         background-color: #1d4ed8;
+    }
+    .btn-secondary {
+        background-color: #6b7280;
+        color: white;
+    }
+    .btn-secondary:hover {
+        background-color: #4b5563;
     }
     .table-container {
         background: white;
@@ -84,8 +97,11 @@
 </style>
 
 <div class="page-header">
-    <h1>Event Trash</h1>
-    <a href="{{ route('admin.event.index') }}" class="btn-primary">Kembali</a>
+    <h1>🗑️ Trash Event</h1>
+    <div class="header-actions">
+        <a href="{{ route('admin.event.trashKategori') }}" class="btn btn-secondary">Trash Kategori →</a>
+        <a href="{{ route('admin.event.index') }}" class="btn btn-primary">Kembali</a>
+    </div>
 </div>
 
 @if($events->count() > 0)

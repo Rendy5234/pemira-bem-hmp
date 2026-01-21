@@ -96,12 +96,6 @@
     <a href="{{ route('admin.kandidat.selectEvent') }}" class="btn-primary">Kembali</a>
 </div>
 
-@if(session('success'))
-<div style="background-color: #d1fae5; color: #065f46; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #6ee7b7;">
-    {{ session('success') }}
-</div>
-@endif
-
 @if($kandidats->count() > 0)
 <div class="table-container">
     <table>

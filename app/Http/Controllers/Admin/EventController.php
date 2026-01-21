@@ -265,4 +265,55 @@ class EventController extends Controller
         return redirect()->route('admin.event.trash')
             ->with('success', 'Event berhasil dihapus permanen!');
     }
+
+    // ========== TRASH KATEGORI PEMILIHAN ==========
+    
+    // Lihat kategori yang sudah dihapus
+    public function trashKategori()
+    {
+        if (!$this->checkDeleteAccess()) {
+            return redirect()->route('admin.event.index')
+                ->with('error', 'Anda tidak memiliki akses.');
+        }
+
+        $admin = Auth::guard('admin')->user();
+        $kategoris = KategoriPemilihan::onlyTrashed()
+            ->with(['event' => function($query) {
+                $query->withTrashed(); // Load event yang dihapus juga
+            }])
+            ->orderBy('deleted_at', 'desc')
+            ->get();
+        
+        return view('admin.event.trash-kategori', compact('kategoris', 'admin'));
+    }
+
+    // Restore kategori
+    public function restoreKategori($id)
+    {
+        if (!$this->checkDeleteAccess()) {
+            return redirect()->route('admin.event.index')
+                ->with('error', 'Anda tidak memiliki akses.');
+        }
+
+        $kategori = KategoriPemilihan::onlyTrashed()->findOrFail($id);
+        $kategori->restore();
+
+        return redirect()->route('admin.event.trashKategori')
+            ->with('success', 'Kategori berhasil dipulihkan!');
+    }
+
+    // Hapus permanen kategori
+    public function forceDeleteKategori($id)
+    {
+        if (!$this->checkDeleteAccess()) {
+            return redirect()->route('admin.event.index')
+                ->with('error', 'Anda tidak memiliki akses.');
+        }
+
+        $kategori = KategoriPemilihan::onlyTrashed()->findOrFail($id);
+        $kategori->forceDelete();
+
+        return redirect()->route('admin.event.trashKategori')
+            ->with('success', 'Kategori berhasil dihapus permanen!');
+    }
 }

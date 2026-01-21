@@ -144,18 +144,6 @@
     <a href="{{ route('admin.kandidat.selectKategori', $event->id_event) }}" class="btn-secondary">Kembali</a>
 </div>
 
-@if(session('success'))
-<div style="background-color: #d1fae5; color: #065f46; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #6ee7b7;">
-    {{ session('success') }}
-</div>
-@endif
-
-@if(session('error'))
-<div style="background-color: #fee2e2; color: #991b1b; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #fca5a5;">
-    {{ session('error') }}
-</div>
-@endif
-
 <div class="info-box">
     <div style="display: flex; justify-content: space-between; align-items: center;">
         <div>

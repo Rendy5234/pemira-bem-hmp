@@ -283,6 +283,7 @@
 
 <script>
 let kategoriIndex = {{ $event->kategoriPemilihan->count() }};
+const kategoriToDelete = []; // Track kategori yang akan dihapus
 
 document.getElementById('addKategoriBtn').addEventListener('click', function() {
     const container = document.getElementById('kategoriContainer');
@@ -324,6 +325,28 @@ document.getElementById('addKategoriBtn').addEventListener('click', function() {
 
 function removeKategori(button) {
     const container = button.closest('.kategori-container');
+    const hiddenIdInput = container.querySelector('input[type="hidden"][name*="[id]"]');
+    
+    // Jika kategori yang dihapus adalah kategori yang sudah ada (punya ID)
+    if (hiddenIdInput && hiddenIdInput.value) {
+        const kategoriId = hiddenIdInput.value;
+        const namaKategori = container.querySelector('input[name*="[nama]"]').value;
+        
+        // Konfirmasi hapus
+        const confirmDelete = confirm(
+            `⚠️ PERINGATAN!\n\n` +
+            `Anda akan menghapus kategori:\n"${namaKategori}"\n\n` +
+            `Jika kategori ini sudah memiliki kandidat, data kandidat akan ikut terhapus!\n\n` +
+            `Yakin ingin melanjutkan?`
+        );
+        
+        if (!confirmDelete) {
+            return; // Batalkan hapus
+        }
+        
+        kategoriToDelete.push(kategoriId);
+    }
+    
     container.remove();
     updateKategoriNumbers();
 }
@@ -334,5 +357,30 @@ function updateKategoriNumbers() {
         container.querySelector('.kategori-number').textContent = `Kategori #${index + 1}`;
     });
 }
+
+// Validasi sebelum submit
+document.querySelector('form').addEventListener('submit', function(e) {
+    const remainingKategori = document.querySelectorAll('.kategori-container').length;
+    
+    if (remainingKategori === 0) {
+        e.preventDefault();
+        alert('❌ Event harus memiliki minimal 1 kategori pemilihan!');
+        return false;
+    }
+    
+    if (kategoriToDelete.length > 0) {
+        const confirmSubmit = confirm(
+            `⚠️ KONFIRMASI TERAKHIR!\n\n` +
+            `Anda akan menghapus ${kategoriToDelete.length} kategori.\n` +
+            `Data kandidat dalam kategori tersebut juga akan terhapus!\n\n` +
+            `Lanjutkan menyimpan perubahan?`
+        );
+        
+        if (!confirmSubmit) {
+            e.preventDefault();
+            return false;
+        }
+    }
+});
 </script>
 @endsection

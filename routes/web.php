@@ -42,6 +42,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('/trash', [EventController::class, 'trash'])->name('trash');
             Route::post('/{id}/restore', [EventController::class, 'restore'])->name('restore');
             Route::delete('/{id}/force-delete', [EventController::class, 'forceDelete'])->name('forceDelete');
+            
+            // Kategori Trash
+            Route::get('/trash-kategori', [EventController::class, 'trashKategori'])->name('trashKategori');
+            Route::post('/kategori/{id}/restore', [EventController::class, 'restoreKategori'])->name('restoreKategori');
+            Route::delete('/kategori/{id}/force-delete', [EventController::class, 'forceDeleteKategori'])->name('forceDeleteKategori');
         });
 
         // ========== KANDIDAT ROUTES ==========
