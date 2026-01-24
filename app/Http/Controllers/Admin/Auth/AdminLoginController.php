@@ -8,49 +8,58 @@ use Illuminate\Support\Facades\Auth;
 
 class AdminLoginController extends Controller
 {
-    // Tampilkan form login admin
+    /**
+     * Show login form
+     */
     public function showLoginForm()
     {
-        // Kalau sudah login, redirect ke dashboard
+        // PENTING: Cek apakah sudah login
         if (Auth::guard('admin')->check()) {
             return redirect()->route('admin.dashboard');
         }
-
+        
         return view('admin.auth.login');
     }
 
-    // Proses login
+    /**
+     * Handle login
+     */
     public function login(Request $request)
     {
         // Validasi input
         $credentials = $request->validate([
             'username' => 'required|string',
-            'password' => 'required|string'
+            'password' => 'required|string',
         ]);
 
-        // Coba login
+        // Attempt login
         if (Auth::guard('admin')->attempt($credentials, $request->filled('remember'))) {
             $request->session()->regenerate();
             
-            return redirect()->intended(route('admin.dashboard'))
-                ->with('success', 'Selamat datang, ' . Auth::guard('admin')->user()->name_admin);
+            // SELALU redirect ke dashboard (bukan halaman terakhir)
+            return redirect()->route('admin.dashboard');
         }
 
-        // Kalau gagal
+        // Login gagal
         return back()->withErrors([
             'username' => 'Username atau password salah.',
-        ])->onlyInput('username');
+        ])->withInput($request->only('username'));
     }
 
-    // Logout
+    /**
+     * Handle logout
+     */
     public function logout(Request $request)
     {
         Auth::guard('admin')->logout();
         
+        // Clear semua session data
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         
-        return redirect()->route('admin.login')
-            ->with('success', 'Anda berhasil logout.');
+        // PENTING: Clear intended URL
+        $request->session()->forget('url.intended');
+        
+        return redirect()->route('admin.login')->with('success', 'Logout berhasil!');
     }
 }

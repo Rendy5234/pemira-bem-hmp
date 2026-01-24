@@ -181,17 +181,11 @@ class KandidatController extends Controller
                 ->withInput();
         }
 
-        // Upload foto baru
+        // Upload foto baru (Observer akan hapus foto lama otomatis)
         if ($request->hasFile('foto_ketua')) {
-            if ($kandidat->foto_ketua) {
-                Storage::disk('public')->delete($kandidat->foto_ketua);
-            }
             $validated['foto_ketua'] = $request->file('foto_ketua')->store('kandidat', 'public');
         }
         if ($request->hasFile('foto_wakil')) {
-            if ($kandidat->foto_wakil) {
-                Storage::disk('public')->delete($kandidat->foto_wakil);
-            }
             $validated['foto_wakil'] = $request->file('foto_wakil')->store('kandidat', 'public');
         }
 
@@ -264,16 +258,10 @@ class KandidatController extends Controller
 
         $kandidat = Kandidat::onlyTrashed()->findOrFail($id);
 
-        if ($kandidat->foto_ketua) {
-            Storage::disk('public')->delete($kandidat->foto_ketua);
-        }
-        if ($kandidat->foto_wakil) {
-            Storage::disk('public')->delete($kandidat->foto_wakil);
-        }
-
+        // Foto akan otomatis terhapus oleh Observer
         $kandidat->forceDelete();
 
         return redirect()->route('admin.kandidat.trash')
-            ->with('success', 'Kandidat berhasil dihapus permanen!');
+            ->with('success', 'Kandidat dan foto berhasil dihapus permanen!');
     }
 }
