@@ -31,14 +31,36 @@ class EventController extends Controller
     }
 
     // List semua event
-    public function index()
+    public function index(Request $request)
     {
         $admin = Auth::guard('admin')->user();
-        $events = Event::withCount('kategoriPemilihan')
-            ->orderBy('created_at', 'desc')
-            ->get();
         
-        return view('admin.event.index', compact('events', 'admin'));
+        $query = Event::withCount('kategoriPemilihan');
+        
+        // Filter Search (nama event)
+        if ($request->filled('search')) {
+            $query->where('nama_event', 'like', '%' . $request->search . '%');
+        }
+        
+        // Filter Periode
+        if ($request->filled('periode')) {
+            $query->where('periode', $request->periode);
+        }
+        
+        // Filter Status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+        
+        $events = $query->orderBy('created_at', 'desc')->get();
+        
+        // Ambil list periode unik untuk dropdown
+        $periodes = Event::select('periode')
+            ->distinct()
+            ->orderBy('periode', 'desc')
+            ->pluck('periode');
+        
+        return view('admin.event.index', compact('events', 'admin', 'periodes'));
     }
 
     // Form tambah event

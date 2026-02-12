@@ -31,14 +31,37 @@ class KandidatController extends Controller
     }
 
     // ========== LEVEL 1: PILIH EVENT ==========
-    public function selectEvent()
+    // ========== LEVEL 1: PILIH EVENT ==========
+    public function selectEvent(Request $request)
     {
         $admin = Auth::guard('admin')->user();
-        $events = Event::withCount('kategoriPemilihan')
-            ->orderBy('created_at', 'desc')
-            ->get();
 
-        return view('admin.kandidat.select-event', compact('admin', 'events'));
+        $query = Event::withCount('kategoriPemilihan');
+
+        // Filter Search (nama event)
+        if ($request->filled('search')) {
+            $query->where('nama_event', 'like', '%' . $request->search . '%');
+        }
+
+        // Filter Periode
+        if ($request->filled('periode')) {
+            $query->where('periode', $request->periode);
+        }
+
+        // Filter Status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $events = $query->orderBy('created_at', 'desc')->get();
+
+        // Ambil list periode unik untuk dropdown
+        $periodes = Event::select('periode')
+            ->distinct()
+            ->orderBy('periode', 'desc')
+            ->pluck('periode');
+
+        return view('admin.kandidat.select-event', compact('admin', 'events', 'periodes'));
     }
 
     // ========== LEVEL 2: PILIH KATEGORI ==========
