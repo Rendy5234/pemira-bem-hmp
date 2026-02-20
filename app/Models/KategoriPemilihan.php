@@ -30,4 +30,10 @@ class KategoriPemilihan extends Model
     {
         return $this->hasMany(Kandidat::class, 'id_kategori', 'id_kategori');
     }
+
+    // Relasi dengan Pemilihan
+    public function pemilihan()
+    {
+        return $this->hasMany(Pemilihan::class, 'id_kategori', 'id_kategori');
+    }
 }

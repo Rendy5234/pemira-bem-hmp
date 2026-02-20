@@ -12,7 +12,7 @@ class Event extends Model
 
     protected $table = 'tb_event';
     protected $primaryKey = 'id_event';
-    
+
     protected $fillable = [
         'nama_event',
         'periode',
@@ -33,6 +33,12 @@ class Event extends Model
     public function kategoriPemilihan()
     {
         return $this->hasMany(KategoriPemilihan::class, 'id_event', 'id_event');
+    }
+
+    // Relasi dengan pemilihan
+    public function pemilihan()
+    {
+        return $this->hasMany(Pemilihan::class, 'id_event', 'id_event');
     }
 
     // Helper methods

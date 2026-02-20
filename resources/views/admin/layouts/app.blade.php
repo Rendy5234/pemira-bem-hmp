@@ -141,6 +141,9 @@
                     class="{{ request()->routeIs('admin.event.*') ? 'active' : '' }}">Event</a>
                 <a href="{{ route('admin.kandidat.selectEvent') }}"
                     class="{{ request()->routeIs('kandidat.*') ? 'active' : '' }}">Kandidat</a>
+                <!-- Riwayat Pemilihan -->
+                <a href="{{ route('admin.riwayat-pemilihan.selectEvent') }}"
+                    class="{{ request()->routeIs('admin/riwayat-pemilihan*') ? 'active' : '' }}">Riwayat Pemilihan</a>
                 <a href="#">Laporan</a>
                 <a href="#">Mahasiswa</a>
             </aside>

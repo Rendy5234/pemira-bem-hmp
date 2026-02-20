@@ -11,7 +11,7 @@ class Kandidat extends Model
 
     protected $table = 'tb_kandidat';
     protected $primaryKey = 'id_kandidat';
-    
+
     protected $fillable = [
         'id_kategori',
         'nomor_urut',
@@ -29,5 +29,11 @@ class Kandidat extends Model
     public function kategoriPemilihan()
     {
         return $this->belongsTo(KategoriPemilihan::class, 'id_kategori', 'id_kategori');
+    }
+
+    // Relasi ke pemilihan
+    public function pemilihan()
+    {
+        return $this->hasMany(Pemilihan::class, 'id_kandidat', 'id_kandidat');
     }
 }
