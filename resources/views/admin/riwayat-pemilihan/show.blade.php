@@ -150,7 +150,7 @@
     </style>
 
     <div class="page-header">
-        <h1>📊 Detail Data Pemilihan</h1>
+        <h1>Detail Data Pemilihan</h1>
         <a href="{{ route('admin.riwayat-pemilihan.index', [$event->id_event, $kategori->id_kategori]) }}"
             class="btn-back">← Kembali</a>
     </div>

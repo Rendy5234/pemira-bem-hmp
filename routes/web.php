@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\Admin\KandidatController;
 use App\Http\Controllers\Admin\RiwayatPemilihanController;
+use App\Http\Controllers\Admin\LaporanController;
 
 // Redirect root ke admin login
 Route::get('/', function () {
@@ -75,21 +76,26 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // ========== RIWAYAT PEMILIHAN ROUTES ==========
         Route::prefix('riwayat-pemilihan')->name('riwayat-pemilihan.')->group(function () {
-            // Level 1: Pilih Event
-            Route::get('/', [RiwayatPemilihanController::class, 'selectEvent'])->name('selectEvent');
+            // Daftar pemilihan
+            Route::get('/', [RiwayatPemilihanController::class, 'index'])->name('index');
 
-            // Level 2: Pilih Kategori
-            Route::get('/event/{eventId}', [RiwayatPemilihanController::class, 'selectKategori'])->name('selectKategori');
+            // Detail pemilihan
+            Route::get('/{id}', [RiwayatPemilihanController::class, 'show'])->name('show');
 
-            // Level 3: Lihat Riwayat Pemilihan
-            Route::get('/event/{eventId}/kategori/{kategoriId}', [RiwayatPemilihanController::class, 'index'])->name('index');
-            Route::get('/event/{eventId}/kategori/{kategoriId}/{id}', [RiwayatPemilihanController::class, 'show'])->name('show');
-            Route::delete('/event/{eventId}/kategori/{kategoriId}/{id}', [RiwayatPemilihanController::class, 'destroy'])->name('destroy');
+            // Delete (Super Admin only)
+            Route::delete('/{id}', [RiwayatPemilihanController::class, 'destroy'])->name('destroy');
 
             // Trash
-            Route::get('/event/{eventId}/kategori/{kategoriId}/trash', [RiwayatPemilihanController::class, 'trash'])->name('trash');
-            Route::post('/event/{eventId}/kategori/{kategoriId}/trash/{id}/restore', [RiwayatPemilihanController::class, 'restore'])->name('restore');
-            Route::delete('/event/{eventId}/kategori/{kategoriId}/trash/{id}/force-delete', [RiwayatPemilihanController::class, 'forceDelete'])->name('forceDelete');
+            Route::get('/trash/list', [RiwayatPemilihanController::class, 'trash'])->name('trash');
+            Route::post('/trash/{id}/restore', [RiwayatPemilihanController::class, 'restore'])->name('restore');
+            Route::delete('/trash/{id}/force-delete', [RiwayatPemilihanController::class, 'forceDelete'])->name('forceDelete');
         });
+        // ========== LAPORAN ROUTES ==========
+        Route::prefix('laporan')->name('laporan.')->group(function () {
+            Route::get('/', [LaporanController::class, 'index'])->name('index');
+            Route::get('/{eventId}/detail', [LaporanController::class, 'detail'])->name('detail');
+            Route::get('/{eventId}/print', [LaporanController::class, 'downloadPdf'])->name('print');
+        });
+
     });
 });

@@ -5,93 +5,21 @@
 @section('content')
     <style>
         .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
             margin-bottom: 30px;
         }
 
         .page-header h1 {
             font-size: 28px;
             color: #333;
-        }
-
-        .header-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn-back {
-            background-color: #6b7280;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 4px;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        .btn-back:hover {
-            background-color: #4b5563;
-        }
-
-        .btn-danger {
-            background-color: #ef4444;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 4px;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        .btn-danger:hover {
-            background-color: #dc2626;
-        }
-
-        .info-card {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            border: 1px solid #e5e7eb;
-            margin-bottom: 20px;
-        }
-
-        .info-card h2 {
-            font-size: 20px;
-            color: #1f2937;
-            margin-bottom: 10px;
-        }
-
-        .info-card p {
-            color: #6b7280;
             margin-bottom: 5px;
         }
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            border: 1px solid #e5e7eb;
-            text-align: center;
-        }
-
-        .stat-card h3 {
-            font-size: 32px;
-            color: #2563eb;
-            margin-bottom: 5px;
-        }
-
-        .stat-card p {
-            color: #6b7280;
+        .breadcrumb {
+            color: #666;
             font-size: 14px;
         }
 
+        /* FILTER SECTION */
         .filter-section {
             background: white;
             padding: 20px;
@@ -100,9 +28,19 @@
             margin-bottom: 20px;
         }
 
+        /* BARIS 1: 3 kolom */
         .filter-grid {
             display: grid;
-            grid-template-columns: 2fr 1.5fr 1.5fr auto;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 15px;
+            align-items: end;
+            margin-bottom: 15px;
+        }
+        
+        /* BARIS 2: 3 kolom */
+        .filter-grid-row2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
             gap: 15px;
             align-items: end;
         }
@@ -171,64 +109,68 @@
             gap: 5px;
         }
 
+        .result-count {
+            font-size: 14px;
+            color: #6b7280;
+            margin-top: 5px;
+        }
+
         .table-container {
             background: white;
             border-radius: 8px;
             border: 1px solid #e5e7eb;
-            overflow: hidden;
+            overflow-x: auto;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
+            min-width: 1000px;
         }
 
         th {
             background-color: #f9fafb;
-            padding: 15px;
+            padding: 12px 15px;
             text-align: left;
             font-weight: bold;
             color: #374151;
             border-bottom: 2px solid #e5e7eb;
+            font-size: 14px;
         }
 
         td {
-            padding: 15px;
+            padding: 12px 15px;
             border-bottom: 1px solid #f3f4f6;
             color: #374151;
+            font-size: 14px;
         }
 
         tr:hover {
             background-color: #f9fafb;
-        }
-
-        .btn-action {
-            padding: 6px 12px;
-            border-radius: 4px;
-            text-decoration: none;
-            font-size: 12px;
-            margin-right: 5px;
-            display: inline-block;
-        }
-
-        .btn-view {
-            background-color: #3b82f6;
-            color: white;
-        }
-
-        .btn-view:hover {
-            background-color: #2563eb;
-        }
-
-        .btn-delete {
-            background-color: #ef4444;
-            color: white;
-            border: none;
             cursor: pointer;
         }
 
-        .btn-delete:hover {
-            background-color: #dc2626;
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .badge-BEM {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-HMP {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-info {
+            background-color: #e0e7ff;
+            color: #4338ca;
         }
 
         .empty-state {
@@ -241,82 +183,72 @@
             display: none !important;
         }
 
-        .result-count {
-            font-size: 14px;
-            color: #6b7280;
-            margin-top: 5px;
-        }
-
-        .nomor-urut {
-            font-size: 24px;
-            font-weight: bold;
-            color: #2563eb;
+        .time-ago {
+            font-size: 12px;
+            color: #9ca3af;
         }
     </style>
 
     <div class="page-header">
-        <h1>📊 Riwayat Pemilihan</h1>
-        <div class="header-actions">
-            <a href="{{ route('admin.riwayat-pemilihan.selectKategori', $event->id_event) }}" class="btn-back">← Kembali</a>
-            @if($admin->isSuperAdmin())
-                <a href="{{ route('admin.riwayat-pemilihan.trash', [$event->id_event, $kategori->id_kategori]) }}"
-                    class="btn-danger">🗑️ Trash</a>
-            @endif
-        </div>
-    </div>
-
-    <!-- INFO CARD -->
-    <div class="info-card">
-        <h2>{{ $event->nama_event }} - {{ $kategori->nama_kategori }}</h2>
-        <p><strong>📅 Periode:</strong> {{ $event->periode }}</p>
-        <p><strong>📋 Jenis:</strong> {{ $kategori->jenis }}</p>
-        <p><strong>🗓️ Tanggal Voting:</strong> {{ $event->getTanggalMulaiFormatted() }} -
-            {{ $event->getTanggalSelesaiFormatted() }}</p>
-    </div>
-
-    <!-- STATISTIK -->
-    <div class="stats-grid">
-        <div class="stat-card">
-            <h3>{{ $stats['total_pemilih'] }}</h3>
-            <p>Total Pemilih</p>
-        </div>
-        @foreach($kandidats as $kandidat)
-            <div class="stat-card">
-                <h3>{{ $stats['kandidat_stats'][$kandidat->id_kandidat]->jumlah ?? 0 }}</h3>
-                <p>Suara No. {{ $kandidat->nomor_urut }} - {{ $kandidat->nama_ketua }}</p>
-            </div>
-        @endforeach
+        <h1>Riwayat Pemilihan</h1>
     </div>
 
     <!-- FILTER SECTION -->
     <div class="filter-section">
+        <!-- BARIS 1: Search, Event, Kategori -->
         <div class="filter-grid">
             <div class="filter-group">
-                <label>🔍 Cari Pemilih</label>
-                <input type="text" name="search" id="searchInput" placeholder="Cari nama atau NIM pemilih..."
+                <label>🔍 Cari Mahasiswa</label>
+                <input type="text" name="search" id="searchInput" placeholder="Cari nama atau NIM mahasiswa..."
                     autocomplete="off">
             </div>
 
             <div class="filter-group">
-                <label>🗳️ Kandidat Dipilih</label>
-                <select name="kandidat" id="kandidatSelect">
-                    <option value="">Semua Kandidat</option>
-                    @foreach($kandidats as $kandidat)
-                        <option value="{{ $kandidat->id_kandidat }}">
-                            No. {{ $kandidat->nomor_urut }} - {{ $kandidat->nama_ketua }}
-                        </option>
+                <label>📅 Event</label>
+                <select name="event" id="eventSelect">
+                    <option value="">Semua Event</option>
+                    @foreach($events as $event)
+                        <option value="{{ $event->id_event }}">{{ $event->nama_event }}</option>
                     @endforeach
                 </select>
             </div>
 
             <div class="filter-group">
-                <label>📅 Tanggal Voting</label>
-                <input type="date" name="tanggal" id="tanggalInput">
+                <label>📋 Kategori</label>
+                <select name="kategori" id="kategoriSelect">
+                    <option value="">Semua Kategori</option>
+                    @foreach($kategoris as $kategori)
+                        <option value="{{ $kategori->id_kategori }}">{{ $kategori->nama_kategori }}</option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
+
+        <!-- BARIS 2: Fakultas, Prodi, Reset Button -->
+        <div class="filter-grid-row2">
+            <div class="filter-group">
+                <label>🏛️ Fakultas</label>
+                <select name="fakultas" id="fakultasSelect">
+                    <option value="">Semua Fakultas</option>
+                    @foreach($fakultasList as $fakultas)
+                        <option value="{{ $fakultas }}">{{ $fakultas }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label>📚 Prodi</label>
+                <select name="prodi" id="prodiSelect">
+                    <option value="">Semua Prodi</option>
+                    @foreach($prodiList as $prodi)
+                        <option value="{{ $prodi }}">{{ $prodi }}</option>
+                    @endforeach
+                </select>
             </div>
 
             <div>
                 <button type="button" id="resetBtn" class="btn-reset">
-                    🔄 Reset Filter
+                    🔄 Reset
                 </button>
             </div>
         </div>
@@ -336,75 +268,82 @@
             <table>
                 <thead>
                     <tr>
-                        <th>No</th>
-                        <th>Waktu Voting</th>
-                        <th>NIM</th>
-                        <th>Nama Pemilih</th>
-                        <th>Kandidat Dipilih</th>
-                        <th>IP Address</th>
-                        <th>Aksi</th>
+                        <th style="width: 50px;">No</th>
+                        <th style="width: 140px;">Waktu</th>
+                        <th style="width: 110px;">NIM</th>
+                        <th style="width: 180px;">Nama Mahasiswa</th>
+                        <th style="width: 200px;">Event</th>
+                        <th style="width: 180px;">Kategori</th>
+                        <th style="width: 200px;">Kandidat Dipilih</th>
+                        <th style="width: 80px;">Aksi</th>
                     </tr>
                 </thead>
                 <tbody id="pemilihanTableBody">
                     @foreach($pemilihans as $index => $pemilihan)
-                        <tr class="pemilihan-row" data-nama="{{ strtolower($pemilihan->nama_pemilih) }}"
-                            data-nim="{{ strtolower($pemilihan->nim) }}" data-kandidat="{{ $pemilihan->id_kandidat }}"
-                            data-tanggal="{{ $pemilihan->waktu_pemilihan->format('Y-m-d') }}">
+                        <tr class="pemilihan-row" data-search="{{ strtolower($pemilihan->nim . ' ' . $pemilihan->nama_pemilih) }}"
+                            data-event="{{ $pemilihan->id_event }}" data-kategori="{{ $pemilihan->id_kategori }}"
+                            data-fakultas="{{ strtolower($pemilihan->user->fakultas ?? '') }}"
+                            data-prodi="{{ strtolower($pemilihan->user->prodi ?? '') }}"
+                            onclick="window.location.href='{{ route('admin.riwayat-pemilihan.show', $pemilihan->id_pemilihan) }}'">
                             <td class="row-number">{{ $index + 1 }}</td>
                             <td>
                                 <strong>{{ $pemilihan->waktu_pemilihan->format('d/m/Y') }}</strong><br>
-                                <small style="color: #9ca3af;">{{ $pemilihan->waktu_pemilihan->format('H:i:s') }}</small>
+                                <span class="time-ago">{{ $pemilihan->waktu_pemilihan->format('H:i') }}</span>
                             </td>
                             <td><strong>{{ $pemilihan->nim }}</strong></td>
-                            <td>{{ $pemilihan->nama_pemilih }}</td>
                             <td>
-                                @if($pemilihan->kandidat)
-                                    <div>
-                                        <span class="nomor-urut">{{ $pemilihan->kandidat->nomor_urut }}</span>
-                                        <strong>{{ $pemilihan->kandidat->nama_ketua }}</strong>
+                                {{ $pemilihan->nama_pemilih }}
+                                @if($pemilihan->user)
+                                    <div style="font-size: 11px; color: #9ca3af;">
+                                        {{ $pemilihan->user->prodi ?? '' }}
                                     </div>
-                                    @if($pemilihan->kandidat->nama_wakil)
-                                        <small style="color: #6b7280;">& {{ $pemilihan->kandidat->nama_wakil }}</small>
-                                    @endif
-                                @else
-                                    <span style="color: #9ca3af;">-</span>
                                 @endif
                             </td>
                             <td>
-                                {{ $pemilihan->ip_address ?? '-' }}
+                                <strong>{{ $pemilihan->event->nama_event ?? '-' }}</strong><br>
+                                <span style="font-size: 11px; color: #9ca3af;">{{ $pemilihan->event->periode ?? '' }}</span>
                             </td>
                             <td>
-                                <a href="{{ route('admin.riwayat-pemilihan.show', [$event->id_event, $kategori->id_kategori, $pemilihan->id_pemilihan]) }}"
-                                    class="btn-action btn-view">Detail</a>
-
-                                @if($admin->isSuperAdmin())
-                                    <form
-                                        action="{{ route('admin.riwayat-pemilihan.destroy', [$event->id_event, $kategori->id_kategori, $pemilihan->id_pemilihan]) }}"
-                                        method="POST" style="display: inline;"
-                                        onsubmit="return confirm('Yakin ingin menghapus data pemilihan ini?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn-action btn-delete">Hapus</button>
-                                    </form>
-                                @endif
+                                {{ $pemilihan->kategoriPemilihan->nama_kategori ?? '-' }}
+                                <span class="badge badge-{{ $pemilihan->kategoriPemilihan->jenis ?? '' }}">
+                                    {{ $pemilihan->kategoriPemilihan->jenis ?? '' }}
+                                </span>
+                            </td>
+                            <td>
+                                <strong>No. {{ $pemilihan->kandidat->nomor_urut ?? '-' }}</strong><br>
+                                <span style="font-size: 12px;">{{ $pemilihan->kandidat->nama_ketua ?? '-' }}</span>
+                            </td>
+                            <td onclick="event.stopPropagation()">
+                                <a href="{{ route('admin.riwayat-pemilihan.show', $pemilihan->id_pemilihan) }}"
+                                    class="badge badge-info" style="text-decoration: none; cursor: pointer; padding: 6px 12px;">
+                                    Detail
+                                </a>
                             </td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
 
-            <!-- EMPTY STATE (akan ditampilkan via JavaScript) -->
+            <!-- EMPTY STATE -->
             <div class="empty-state" id="emptyState" style="display: none;">
-                <p style="font-size: 18px; margin-bottom: 10px;">Tidak ada data pemilihan yang sesuai filter</p>
+                <p style="font-size: 18px; margin-bottom: 10px;">Tidak ada data yang sesuai filter</p>
                 <p>Coba ubah kriteria pencarian atau <a href="javascript:void(0)" id="resetLink"
                         style="color: #2563eb; font-weight: bold;">reset filter</a></p>
             </div>
         </div>
+
+        <!-- PAGINATION -->
+        @if($pemilihans->hasPages())
+            <div style="margin-top: 20px;">
+                {{ $pemilihans->links() }}
+            </div>
+        @endif
+
     @else
         <div class="table-container">
             <div class="empty-state">
                 <p style="font-size: 18px; margin-bottom: 10px;">Belum ada data pemilihan</p>
-                <p>Data pemilihan akan muncul setelah ada mahasiswa yang voting</p>
+                <p>Belum ada mahasiswa yang melakukan pemilihan. Run PemilihanSeeder untuk membuat data dummy.</p>
             </div>
         </div>
     @endif
@@ -412,8 +351,10 @@
     <script>
         // Ambil elemen
         const searchInput = document.getElementById('searchInput');
-        const kandidatSelect = document.getElementById('kandidatSelect');
-        const tanggalInput = document.getElementById('tanggalInput');
+        const eventSelect = document.getElementById('eventSelect');
+        const kategoriSelect = document.getElementById('kategoriSelect');
+        const fakultasSelect = document.getElementById('fakultasSelect');
+        const prodiSelect = document.getElementById('prodiSelect');
         const resetBtn = document.getElementById('resetBtn');
         const activeFilters = document.getElementById('activeFilters');
         const filterTags = document.getElementById('filterTags');
@@ -422,34 +363,34 @@
         const emptyState = document.getElementById('emptyState');
         const resetLink = document.getElementById('resetLink');
 
-        // Total pemilihan
         const totalPemilihan = pemilihanRows.length;
 
         // Function untuk filter real-time
         function filterPemilihan() {
             const searchValue = searchInput.value.toLowerCase().trim();
-            const kandidatValue = kandidatSelect.value;
-            const tanggalValue = tanggalInput.value;
+            const eventValue = eventSelect.value;
+            const kategoriValue = kategoriSelect.value;
+            const fakultasValue = fakultasSelect.value.toLowerCase();
+            const prodiValue = prodiSelect.value.toLowerCase();
 
             let visibleCount = 0;
             let currentNumber = 1;
 
-            // Filter setiap row
             pemilihanRows.forEach(row => {
-                const nama = row.getAttribute('data-nama');
-                const nim = row.getAttribute('data-nim');
-                const kandidat = row.getAttribute('data-kandidat');
-                const tanggal = row.getAttribute('data-tanggal');
+                const search = row.getAttribute('data-search');
+                const event = row.getAttribute('data-event');
+                const kategori = row.getAttribute('data-kategori');
+                const fakultas = row.getAttribute('data-fakultas');
+                const prodi = row.getAttribute('data-prodi');
 
-                // Cek apakah row sesuai filter
-                const matchSearch = searchValue === '' || nama.includes(searchValue) || nim.includes(searchValue);
-                const matchKandidat = kandidatValue === '' || kandidat === kandidatValue;
-                const matchTanggal = tanggalValue === '' || tanggal === tanggalValue;
+                const matchSearch = searchValue === '' || search.includes(searchValue);
+                const matchEvent = eventValue === '' || event === eventValue;
+                const matchKategori = kategoriValue === '' || kategori === kategoriValue;
+                const matchFakultas = fakultasValue === '' || fakultas.includes(fakultasValue);
+                const matchProdi = prodiValue === '' || prodi.includes(prodiValue);
 
-                // Show/hide row
-                if (matchSearch && matchKandidat && matchTanggal) {
+                if (matchSearch && matchEvent && matchKategori && matchFakultas && matchProdi) {
                     row.classList.remove('hidden-row');
-                    // Update nomor urut
                     row.querySelector('.row-number').textContent = currentNumber;
                     currentNumber++;
                     visibleCount++;
@@ -458,15 +399,13 @@
                 }
             });
 
-            // Update UI
-            updateFilterUI(searchValue, kandidatValue, tanggalValue, visibleCount);
+            updateFilterUI(searchValue, eventValue, kategoriValue, fakultasValue, prodiValue, visibleCount);
         }
 
-        // Function untuk update UI (tags, reset button, result count)
-        function updateFilterUI(searchValue, kandidatValue, tanggalValue, visibleCount) {
-            const hasFilter = searchValue !== '' || kandidatValue !== '' || tanggalValue !== '';
+        // Function untuk update UI
+        function updateFilterUI(searchValue, eventValue, kategoriValue, fakultasValue, prodiValue, visibleCount) {
+            const hasFilter = searchValue !== '' || eventValue !== '' || kategoriValue !== '' || fakultasValue !== '' || prodiValue !== '';
 
-            // Update filter tags
             if (hasFilter) {
                 activeFilters.style.display = 'flex';
 
@@ -474,28 +413,33 @@
                 if (searchValue !== '') {
                     tagsHTML += `<span class="filter-tag">🔍 "${searchValue}"</span>`;
                 }
-                if (kandidatValue !== '') {
-                    const selectedOption = kandidatSelect.options[kandidatSelect.selectedIndex].text;
-                    tagsHTML += `<span class="filter-tag">🗳️ ${selectedOption}</span>`;
+                if (eventValue !== '') {
+                    const selectedText = eventSelect.options[eventSelect.selectedIndex].text;
+                    tagsHTML += `<span class="filter-tag">📅 ${selectedText}</span>`;
                 }
-                if (tanggalValue !== '') {
-                    tagsHTML += `<span class="filter-tag">📅 ${tanggalValue}</span>`;
+                if (kategoriValue !== '') {
+                    const selectedText = kategoriSelect.options[kategoriSelect.selectedIndex].text;
+                    tagsHTML += `<span class="filter-tag">📋 ${selectedText}</span>`;
+                }
+                if (fakultasValue !== '') {
+                    tagsHTML += `<span class="filter-tag">🏛️ ${fakultasValue}</span>`;
+                }
+                if (prodiValue !== '') {
+                    tagsHTML += `<span class="filter-tag">📚 ${prodiValue}</span>`;
                 }
                 filterTags.innerHTML = tagsHTML;
             } else {
                 activeFilters.style.display = 'none';
             }
 
-            // Update result count
             if (hasFilter) {
-                resultCount.textContent = `Menampilkan ${visibleCount} dari ${totalPemilihan} data pemilihan`;
+                resultCount.textContent = `Menampilkan ${visibleCount} dari ${totalPemilihan} pemilihan`;
                 resultCount.style.display = 'block';
             } else {
-                resultCount.textContent = `Total ${totalPemilihan} data pemilihan`;
+                resultCount.textContent = `Total ${totalPemilihan} pemilihan`;
                 resultCount.style.display = 'block';
             }
 
-            // Show/hide empty state
             if (visibleCount === 0 && hasFilter) {
                 emptyState.style.display = 'block';
             } else {
@@ -506,20 +450,24 @@
         // Function untuk reset filter
         function resetFilter() {
             searchInput.value = '';
-            kandidatSelect.value = '';
-            tanggalInput.value = '';
+            eventSelect.value = '';
+            kategoriSelect.value = '';
+            fakultasSelect.value = '';
+            prodiSelect.value = '';
             filterPemilihan();
         }
 
         // Event listeners
         searchInput.addEventListener('input', filterPemilihan);
-        kandidatSelect.addEventListener('change', filterPemilihan);
-        tanggalInput.addEventListener('change', filterPemilihan);
+        eventSelect.addEventListener('change', filterPemilihan);
+        kategoriSelect.addEventListener('change', filterPemilihan);
+        fakultasSelect.addEventListener('change', filterPemilihan);
+        prodiSelect.addEventListener('change', filterPemilihan);
         resetBtn.addEventListener('click', resetFilter);
         resetLink.addEventListener('click', resetFilter);
 
         // Initial count display
-        resultCount.textContent = `Total ${totalPemilihan} data pemilihan`;
+        resultCount.textContent = `Total ${totalPemilihan} pemilihan`;
         resultCount.style.display = 'block';
     </script>
 @endsection
